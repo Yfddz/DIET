@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plate — Diet Planner</title>
+<meta name="description" content="A reflux-aware muscle-gain meal planner with macro tracking and meal reminders.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2BB673">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Plate">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#2BB673; --green-soft:#E7F6EE; --green-ink:#15805A;
+  --coral:#FF6B57; --coral-soft:#FFE9E5;
+  --amber:#F5A524; --amber-soft:#FFF1D9;
+  --blue:#4DA3FF;  --blue-soft:#E6F1FF;
+  --cream:#F8F6F1; --card:#FFFFFF; --ink:#15140F; --muted:#73706A; --faint:#9C988F;
+  --hair:#ECE8DF; --track:#EFEDE6;
+  --shadow:0 12px 34px rgba(20,20,15,.08), 0 2px 6px rgba(20,20,15,.04);
+  --shadow-sm:0 4px 14px rgba(20,20,15,.06);
+  --disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Hanken Grotesk',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--cream);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 50% -10%, #FCFBF8 0%, var(--cream) 60%);min-height:100vh}
+.wrap{max-width:460px;margin:0 auto;padding:0 18px 120px}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* header */
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:11px;padding:18px 4px 14px;
+  background:var(--cream);max-width:460px;margin:0 auto}
+header .logo{width:30px;height:30px;display:block}
+header .name{font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:-.02em}
+header .tag{font-size:11px;color:var(--faint);margin-left:-4px;margin-top:9px;font-weight:500}
+#installBtn{display:none;margin-left:auto;align-items:center;gap:6px;background:var(--green);color:#fff;border:none;
+  font-family:var(--body);font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;box-shadow:var(--shadow-sm)}
+#installBtn svg{width:14px;height:14px}
+
+/* hero */
+.hero{background:var(--card);border:1px solid var(--hair);border-radius:26px;padding:22px 20px 24px;box-shadow:var(--shadow);margin-top:4px}
+.hero-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.hero-top h1{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:-.02em}
+.hero-top .date{font-size:13px;color:var(--muted);font-weight:600}
+.ringwrap{display:flex;justify-content:center;margin:6px 0 4px;position:relative}
+.calring{width:208px;height:208px}
+.ring-bg{fill:none;stroke:var(--track)}
+.ring-val{fill:none;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.1,1)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.center .big{font-family:var(--disp);font-weight:800;font-size:50px;line-height:.95;letter-spacing:-.03em}
+.center .sub{font-size:13px;color:var(--muted);margin-top:6px;font-weight:600}
+.center .left{font-size:12px;color:var(--green-ink);font-weight:700;margin-top:3px;background:var(--green-soft);padding:2px 9px;border-radius:999px}
+
+.macros{display:flex;justify-content:space-between;gap:8px;margin-top:14px}
+.mac{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px}
+.mac .mring{width:74px;height:74px;position:relative}
+.mac .mctr{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:17px}
+.mac .mlbl{font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+.mac .mlbl b{font-weight:700}
+
+.tally{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:15px;border-top:1px solid var(--hair)}
+.tally .t1{font-size:13.5px;color:var(--muted);font-weight:600}
+.tally .t1 b{color:var(--ink);font-weight:700}
+.tally button{background:none;border:none;color:var(--coral);font-family:var(--body);font-weight:700;font-size:13px;cursor:pointer;padding:4px}
+
+/* section */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:26px 4px 12px}
+.sec-head h2{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em}
+.sec-head .hint{font-size:12px;color:var(--faint);font-weight:500}
+
+/* meal cards */
+.meal{width:100%;text-align:left;display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--hair);
+  border-radius:18px;padding:14px 15px;margin-bottom:10px;cursor:pointer;font-family:var(--body);box-shadow:var(--shadow-sm);
+  transition:border-color .2s, background .2s, transform .08s}
+.meal:active{transform:scale(.992)}
+.mtime{flex-shrink:0;width:50px;text-align:center;font-weight:700;font-size:13px;color:var(--green-ink);background:var(--green-soft);
+  padding:7px 0;border-radius:11px;font-variant-numeric:tabular-nums}
+.mbody{flex:1;min-width:0}
+.mname{display:block;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:-.01em}
+.mfood{display:block;font-size:12.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mmacros{display:block;font-size:12px;color:var(--faint);margin-top:5px;font-variant-numeric:tabular-nums;font-weight:500}
+.mmacros i{font-style:normal;color:var(--ink);font-weight:700}
+.mcheck{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:2px solid var(--hair);position:relative;transition:all .2s}
+.mcheck::after{content:'';position:absolute;left:9px;top:5px;width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;
+  transform:rotate(45deg) scale(0);opacity:0;transition:all .2s}
+.meal.done{border-color:var(--green);background:linear-gradient(180deg,var(--green-soft),var(--card))}
+.meal.done .mcheck{background:var(--green);border-color:var(--green)}
+.meal.done .mcheck::after{transform:rotate(45deg) scale(1);opacity:1}
+.meal.done .mtime{background:#fff;border:1px solid var(--green)}
+
+/* note card */
+.note{display:flex;gap:11px;background:var(--green-soft);border-radius:16px;padding:14px 15px;margin-top:4px;align-items:flex-start}
+.note svg{width:18px;height:18px;flex-shrink:0;margin-top:2px;color:var(--green-ink)}
+.note p{font-size:12.5px;color:var(--green-ink);font-weight:500;line-height:1.45}
+.note b{font-weight:700}
+
+footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-weight:500}
+
+/* FAB */
+.fab{position:fixed;right:max(18px,calc(50vw - 230px + 18px));bottom:22px;z-index:25;width:58px;height:58px;border-radius:50%;
+  background:var(--green);border:none;color:#fff;cursor:pointer;box-shadow:0 10px 26px rgba(43,182,115,.45);display:flex;align-items:center;justify-content:center}
+.fab svg{width:25px;height:25px}
+.fab .dot{position:absolute;top:13px;right:14px;width:9px;height:9px;border-radius:50%;background:var(--coral);border:2px solid var(--green)}
+
+/* overlay + sheet */
+.overlay{position:fixed;inset:0;background:rgba(20,20,15,.4);opacity:0;visibility:hidden;transition:.3s;z-index:30}
+.overlay.show{opacity:1;visibility:visible}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--card);border-radius:26px 26px 0 0;
+  padding:10px 20px max(26px,env(safe-area-inset-bottom)) 20px;max-width:460px;margin:0 auto;
+  transform:translateY(110%);transition:transform .34s cubic-bezier(.32,.72,0,1);box-shadow:0 -12px 40px rgba(0,0,0,.18);max-height:88vh;overflow-y:auto}
+.sheet.open{transform:translateY(0)}
+.handle{width:40px;height:4px;border-radius:99px;background:var(--hair);margin:4px auto 16px}
+.sheet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sheet-top h3{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:-.02em}
+.sheet-close{background:var(--track);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;color:var(--muted);font-size:17px;line-height:1}
+.sheet>.subt{font-size:13px;color:var(--muted);margin-bottom:18px;font-weight:500}
+
+.rowtoggle{display:flex;align-items:center;justify-content:space-between;background:var(--cream);border:1px solid var(--hair);
+  border-radius:15px;padding:14px 16px;margin-bottom:16px}
+.rowtoggle .lab{font-family:var(--disp);font-weight:700;font-size:15px}
+.rowtoggle .lab span{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted);margin-top:2px}
+.switch{position:relative;width:50px;height:30px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--track);border-radius:99px;transition:.25s;cursor:pointer}
+.slider::before{content:'';position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider::before{transform:translateX(20px)}
+
+.times-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin:4px 2px 8px}
+.time-row{display:flex;align-items:center;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--hair)}
+.time-row:last-child{border-bottom:none}
+.time-row span{font-weight:600;font-size:14.5px}
+.time-row input[type=time]{font-family:var(--body);font-size:15px;font-weight:600;border:1px solid var(--hair);background:var(--cream);
+  border-radius:10px;padding:7px 10px;color:var(--ink);font-variant-numeric:tabular-nums}
+.time-row input:focus{outline:none;border-color:var(--green)}
+
+.testbtn{width:100%;margin-top:18px;background:#fff;border:1.5px solid var(--green);color:var(--green-ink);font-family:var(--body);
+  font-weight:700;font-size:14.5px;padding:13px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.testbtn svg{width:17px;height:17px}
+.testbtn:active{background:var(--green-soft)}
+.support{font-size:11.5px;color:var(--faint);margin-top:13px;line-height:1.5;text-align:center;font-weight:500}
+
+#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,16px);z-index:50;background:var(--ink);color:#fff;
+  font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:99px;opacity:0;visibility:hidden;transition:.3s;box-shadow:0 8px 24px rgba(0,0,0,.3);white-space:nowrap}
+#toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
+@media(min-width:480px){ .fab{right:calc(50vw - 230px + 18px)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="32" cy="32" r="20.5" stroke="#2BB673" stroke-width="7" stroke-linecap="round" stroke-dasharray="105.91 22.90" stroke-dashoffset="-11.45" transform="rotate(-90 32 32)"/><circle cx="32" cy="11.5" r="4.7" fill="#FF6B57"/></svg>
+    <span class="name">Plate</span>
+    <span class="tag">eat to grow</span>
+    <button id="installBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>Install</button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-top">
+      <h1>Today</h1>
+      <span class="date" id="todayDate">—</span>
+    </div>
+
+    <div class="ringwrap">
+      <svg class="calring" viewBox="0 0 208 208">
+        <circle class="ring-bg" cx="104" cy="104" r="90" stroke-width="15"/>
+        <circle class="ring-val" id="ringCal" cx="104" cy="104" r="90" stroke-width="15" stroke="var(--green)"
+                transform="rotate(-90 104 104)" style="stroke-dasharray:1000;stroke-dashoffset:1000"/>
+      </svg>
+      <div class="center">
+        <div class="big tnum" id="calVal">0</div>
+        <div class="sub tnum" id="calTarget">of 2500 kcal</div>
+        <div class="left tnum" id="calLeft">2500 left</div>
+      </div>
+    </div>
+
+    <div class="macros">
+      <div class="mac">
+        <div class="mring">
+          <svg viewBox="0 0 74 74"><circle class="ring-bg" cx="37" cy="37" r="31" stroke-width="7"/>
+          <circle class="ring-val" id="ringPro" cx="37" cy="37" r="31" stroke-width="7" stroke="var(--coral)" transform="rotate(-90 37 37)" style="stroke-dasharray:1000;stroke-dashoffset:1000"/></svg>
+          <div class="mctr tnum" id="proVal" style="color:var(--coral)">0</div>
+        </div>
+        <div class="mlbl">Protein <b id="proT">/150</b></div>
+      </div>
+      <div class="mac">
+        <div class="mring">
+          <svg viewBox="0 0 74 74"><circle class="ring-bg" cx="37" cy="37" r="31" stroke-width="7"/>
+          <circle class="ring-val" id="ringCarb" cx="37" cy="37" r="31" stroke-width="7" stroke="var(--amber)" transform="rotate(-90 37 37)" style="stroke-dasharray:1000;stroke-dashoffset:1000"/></svg>
+          <div class="mctr tnum" id="carbVal" style="color:var(--amber)">0</div>
+        </div>
+        <div class="mlbl">Carbs <b id="carbT">/335</b></div>
+      </div>
+      <div class="mac">
+        <div class="mring">
+          <svg viewBox="0 0 74 74"><circle class="ring-bg" cx="37" cy="37" r="31" stroke-width="7"/>
+          <circle class="ring-val" id="ringFat" cx="37" cy="37" r="31" stroke-width="7" stroke="var(--blue)" transform="rotate(-90 37 37)" style="stroke-dasharray:1000;stroke-dashoffset:1000"/></svg>
+          <div class="mctr tnum" id="fatVal" style="color:var(--blue)">0</div>
+        </div>
+        <div class="mlbl">Fat <b id="fatT">/66</b></div>
+      </div>
+    </div>
+
+    <div class="tally">
+      <span class="t1"><b id="mealCount">0</b> / <span id="mealTotal">6</span> feeds logged</span>
+      <button id="resetDay">Reset day</button>
+    </div>
+  </section>
+
+  <!-- MEALS -->
+  <div class="sec-head"><h2>Your day</h2><span class="hint">tap a feed to log it</span></div>
+  <div id="mealList">
+    <button class="meal" data-id="1"><span class="mtime tnum">7:30</span><span class="mbody"><span class="mname">Breakfast</span><span class="mfood">Oats in milk, banana, 3 boiled eggs</span><span class="mmacros"><i>670</i> kcal · <i>35</i>P · <i>80</i>C · <i>24</i>F</span></span><span class="mcheck"></span></button>
+    <button class="meal" data-id="2"><span class="mtime tnum">11:00</span><span class="mbody"><span class="mname">Mid-morning</span><span class="mfood">Curd + a fruit (papaya / apple)</span><span class="mmacros"><i>150</i> kcal · <i>6</i>P · <i>25</i>C · <i>3</i>F</span></span><span class="mcheck"></span></button>
+    <button class="meal" data-id="3"><span class="mtime tnum">1:30</span><span class="mbody"><span class="mname">Lunch</span><span class="mfood">Rice, light fish curry, dal, veg</span><span class="mmacros"><i>780</i> kcal · <i>48</i>P · <i>120</i>C · <i>13</i>F</span></span><span class="mcheck"></span></button>
+    <button class="meal" data-id="4"><span class="mtime tnum">5:00</span><span class="mbody"><span class="mname">Pre-gym</span><span class="mfood">Banana + dates (or small poha)</span><span class="mmacros"><i>185</i> kcal · <i>2</i>P · <i>48</i>C · <i>0</i>F</span></span><span class="mcheck"></span></button>
+    <button class="meal" data-id="5"><span class="mtime tnum">6:45</span><span class="mbody"><span class="mname">Post-gym</span><span class="mfood">Milk + 2 boiled eggs (or whey)</span><span class="mmacros"><i>265</i> kcal · <i>21</i>P · <i>12</i>C · <i>15</i>F</span></span><span class="mcheck"></span></button>
+    <button class="meal" data-id="6"><span class="mtime tnum">8:00</span><span class="mbody"><span class="mname">Dinner</span><span class="mfood">Roti, grilled chicken, veg — by 8</span><span class="mmacros"><i>450</i> kcal · <i>38</i>P · <i>50</i>C · <i>11</i>F</span></span><span class="mcheck"></span></button>
+  </div>
+
+  <div class="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+    <p><b>The one rule:</b> nothing fried, nothing fiery. Same fish or chicken — steamed, grilled, or light-gravy keeps your nights calm while you eat big. Finish dinner by 8, then stay upright.</p>
+  </div>
+
+  <footer>Plate · built for Kapil · v1</footer>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="bellBtn" aria-label="Meal reminders">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+  <span class="dot"></span>
+</button>
+
+<!-- REMINDERS SHEET -->
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet">
+  <div class="handle"></div>
+  <div class="sheet-top">
+    <h3>Meal reminders</h3>
+    <button class="sheet-close" id="sheetClose">✕</button>
+  </div>
+  <p class="subt">Get a nudge on your phone at each feed.</p>
+
+  <div class="rowtoggle">
+    <div class="lab">Enable reminders<span>Asks for notification permission</span></div>
+    <label class="switch"><input type="checkbox" id="remToggle"><span class="slider"></span></label>
+  </div>
+
+  <div class="times-lbl">Feed times</div>
+  <div id="timeList"></div>
+
+  <button class="testbtn" id="testBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    Send a test notification
+  </button>
+  <p class="support" id="supportNote"></p>
+</div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
