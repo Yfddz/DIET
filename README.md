@@ -35,8 +35,18 @@ Tap the **bell** (bottom-right) → toggle **Enable reminders** → allow permis
 
 Feed times are editable in the bell sheet.
 
-## Customize
-Open `app.js` — `PLAN` and `MEALS` at the top are the single source of truth (calories, protein, foods, default times). If you change a meal's name/foods/macros, also update the matching card in `index.html` so the display matches. Give me your height and I'll retune the targets.
+## Streak & history
+Plate keeps a rolling, on-device history of each day. The card under your feeds shows a **7-day strip** (a dot per day — filled green when every feed was logged, amber when partial) and your **current day streak**. A day counts toward the streak when all its feeds are logged; today stays "in progress" without breaking yesterday's streak.
+
+## Customize — in the app
+Tap **Edit plan** (top-right of *Your day*) to change everything without touching code:
+
+- **Daily targets** — calories, protein, carbs, fat (the rings retune instantly).
+- **Feeds** — edit a feed's name, foods, time, and per-feed macros; **add** or **remove** feeds; or **reset to the default plan**.
+
+Meal cards now render from this data, so there's a single source of truth — no need to keep `index.html` and `app.js` in sync by hand. Everything you edit is saved locally on your device.
+
+> Advanced: `DEFAULT_PLAN` and `DEFAULT_MEALS` at the top of `app.js` are the factory defaults used on first run and by **Reset to default plan**.
 
 ## Privacy
 Everything (today's log, your reminder settings) is stored **locally on your device** via `localStorage`. Nothing is sent anywhere.

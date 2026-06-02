@@ -154,6 +154,52 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
 #toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
 
 @media(min-width:480px){ .fab{right:calc(50vw - 230px + 18px)} }
+
+/* edit-plan link */
+.editlink{display:inline-flex;align-items:center;gap:5px;background:var(--green-soft);color:var(--green-ink);border:none;
+  font-family:var(--body);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer;transition:transform .08s}
+.editlink svg{width:13px;height:13px}
+.editlink:active{transform:scale(.96)}
+
+/* streak + week strip */
+.streak{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--hair);border-radius:22px;
+  padding:16px 18px;box-shadow:var(--shadow-sm);margin:0 0 10px}
+.streak .flame{width:48px;height:48px;border-radius:14px;background:var(--amber-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px}
+.streak .sinfo{flex-shrink:0}
+.streak .snum{font-family:var(--disp);font-weight:800;font-size:30px;line-height:1;letter-spacing:-.02em}
+.streak .slbl{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.week{display:flex;gap:6px;margin-left:auto}
+.wd{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wd .wd-dot{width:12px;height:12px;border-radius:50%;background:var(--track);border:2px solid var(--track);transition:.2s}
+.wd .wd-lbl{font-size:10px;font-weight:700;color:var(--faint)}
+.wd.part .wd-dot{background:var(--amber-soft);border-color:var(--amber)}
+.wd.done .wd-dot{background:var(--green);border-color:var(--green)}
+.wd.today .wd-lbl{color:var(--green-ink)}
+.wd.today .wd-dot{box-shadow:0 0 0 2px var(--green-soft)}
+
+/* edit sheet */
+.target-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.target-grid label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+.target-grid input{font-family:var(--body);font-weight:700;font-size:16px;border:1px solid var(--hair);background:var(--cream);
+  border-radius:11px;padding:10px 12px;color:var(--ink);font-variant-numeric:tabular-nums}
+.target-grid input:focus,.erow input:focus{outline:none;border-color:var(--green)}
+
+.erow{background:var(--cream);border:1px solid var(--hair);border-radius:15px;padding:12px;margin-bottom:12px}
+.erow-top{display:flex;gap:8px;margin-bottom:8px}
+.erow .ef-time{flex-shrink:0;width:92px;font-family:var(--body);font-weight:600;font-size:13px;border:1px solid var(--hair);
+  background:#fff;border-radius:10px;padding:8px 8px;color:var(--ink);font-variant-numeric:tabular-nums}
+.erow .ef-name{flex:1;min-width:0;font-family:var(--disp);font-weight:700;font-size:15px;border:1px solid var(--hair);background:#fff;border-radius:10px;padding:8px 10px;color:var(--ink)}
+.erow .ef-del{flex-shrink:0;width:36px;border:1px solid var(--hair);background:#fff;border-radius:10px;color:var(--coral);font-size:15px;cursor:pointer;line-height:1}
+.erow .ef-food{width:100%;font-family:var(--body);font-size:13px;border:1px solid var(--hair);background:#fff;border-radius:10px;padding:8px 10px;color:var(--ink);margin-bottom:8px}
+.erow .ef-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.erow .ef-grid label{display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--faint);text-align:center}
+.erow .ef-grid input{font-family:var(--body);font-weight:600;font-size:13px;border:1px solid var(--hair);background:#fff;border-radius:8px;padding:6px 4px;color:var(--ink);text-align:center;min-width:0;font-variant-numeric:tabular-nums}
+
+.addbtn{width:100%;background:var(--green-soft);color:var(--green-ink);border:none;border-radius:13px;padding:12px;font-family:var(--body);font-weight:700;font-size:14px;cursor:pointer;margin-bottom:6px}
+.addbtn:active{transform:scale(.99)}
+.savebtn{width:100%;margin-top:14px;background:var(--green);color:#fff;border:none;border-radius:14px;padding:14px;font-family:var(--body);font-weight:700;font-size:15px;cursor:pointer;box-shadow:var(--shadow-sm)}
+.savebtn:active{transform:scale(.99)}
+.resetbtn{width:100%;margin-top:10px;background:none;border:none;color:var(--coral);font-family:var(--body);font-weight:700;font-size:13px;cursor:pointer;padding:8px}
 </style>
 </head>
 <body>
@@ -219,22 +265,22 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
   </section>
 
   <!-- MEALS -->
-  <div class="sec-head"><h2>Your day</h2><span class="hint">tap a feed to log it</span></div>
-  <div id="mealList">
-    <button class="meal" data-id="1"><span class="mtime tnum">7:30</span><span class="mbody"><span class="mname">Breakfast</span><span class="mfood">Oats in milk, banana, 3 boiled eggs</span><span class="mmacros"><i>670</i> kcal · <i>35</i>P · <i>80</i>C · <i>24</i>F</span></span><span class="mcheck"></span></button>
-    <button class="meal" data-id="2"><span class="mtime tnum">11:00</span><span class="mbody"><span class="mname">Mid-morning</span><span class="mfood">Curd + a fruit (papaya / apple)</span><span class="mmacros"><i>150</i> kcal · <i>6</i>P · <i>25</i>C · <i>3</i>F</span></span><span class="mcheck"></span></button>
-    <button class="meal" data-id="3"><span class="mtime tnum">1:30</span><span class="mbody"><span class="mname">Lunch</span><span class="mfood">Rice, light fish curry, dal, veg</span><span class="mmacros"><i>780</i> kcal · <i>48</i>P · <i>120</i>C · <i>13</i>F</span></span><span class="mcheck"></span></button>
-    <button class="meal" data-id="4"><span class="mtime tnum">5:00</span><span class="mbody"><span class="mname">Pre-gym</span><span class="mfood">Banana + dates (or small poha)</span><span class="mmacros"><i>185</i> kcal · <i>2</i>P · <i>48</i>C · <i>0</i>F</span></span><span class="mcheck"></span></button>
-    <button class="meal" data-id="5"><span class="mtime tnum">6:45</span><span class="mbody"><span class="mname">Post-gym</span><span class="mfood">Milk + 2 boiled eggs (or whey)</span><span class="mmacros"><i>265</i> kcal · <i>21</i>P · <i>12</i>C · <i>15</i>F</span></span><span class="mcheck"></span></button>
-    <button class="meal" data-id="6"><span class="mtime tnum">8:00</span><span class="mbody"><span class="mname">Dinner</span><span class="mfood">Roti, grilled chicken, veg — by 8</span><span class="mmacros"><i>450</i> kcal · <i>38</i>P · <i>50</i>C · <i>11</i>F</span></span><span class="mcheck"></span></button>
-  </div>
+  <div class="sec-head"><h2>Your day</h2><button class="editlink" id="editBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Edit plan</button></div>
+  <div id="mealList"></div>
+
+  <!-- STREAK / WEEK -->
+  <section class="streak">
+    <div class="flame" aria-hidden="true">🔥</div>
+    <div class="sinfo"><div class="snum tnum" id="streakNum">0</div><div class="slbl" id="streakLbl">day streak</div></div>
+    <div class="week" id="weekStrip"></div>
+  </section>
 
   <div class="note">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
     <p><b>The one rule:</b> nothing fried, nothing fiery. Same fish or chicken — steamed, grilled, or light-gravy keeps your nights calm while you eat big. Finish dinner by 8, then stay upright.</p>
   </div>
 
-  <footer>Plate · built for Kapil · v1</footer>
+  <footer>Plate · built for Kapil · v2</footer>
 </div>
 
 <!-- FAB -->
@@ -266,6 +312,31 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
     Send a test notification
   </button>
   <p class="support" id="supportNote"></p>
+</div>
+
+<!-- EDIT PLAN SHEET -->
+<div class="sheet" id="editSheet">
+  <div class="handle"></div>
+  <div class="sheet-top">
+    <h3>Edit plan</h3>
+    <button class="sheet-close" id="editClose">✕</button>
+  </div>
+  <p class="subt">Tune your targets and feeds. Saved on this device.</p>
+
+  <div class="times-lbl">Daily targets</div>
+  <div class="target-grid">
+    <label>Calories<input type="number" id="tgtKcal" inputmode="numeric" min="0"></label>
+    <label>Protein (g)<input type="number" id="tgtPro" inputmode="numeric" min="0"></label>
+    <label>Carbs (g)<input type="number" id="tgtCarb" inputmode="numeric" min="0"></label>
+    <label>Fat (g)<input type="number" id="tgtFat" inputmode="numeric" min="0"></label>
+  </div>
+
+  <div class="times-lbl">Feeds</div>
+  <div id="editList"></div>
+  <button class="addbtn" id="addMeal">+ Add a feed</button>
+
+  <button class="savebtn" id="saveEdit">Save changes</button>
+  <button class="resetbtn" id="resetPlan">Reset to default plan</button>
 </div>
 
 <script src="app.js" defer></script>

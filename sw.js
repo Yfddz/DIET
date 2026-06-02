@@ -1,5 +1,5 @@
 /* Plate service worker — offline shell + notification clicks */
-var CACHE = 'plate-v1';
+var CACHE = 'plate-v2';
 var SHELL = [
   './',
   './index.html',
