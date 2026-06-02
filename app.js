@@ -61,6 +61,12 @@
     return h + ':' + mm;
   }
 
+  /* ---- date helpers ---- */
+  var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function dateFromKey(key) { var p = key.split('-'); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
+  function fmtDate(key) { var d = dateFromKey(key); return DOW[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()]; }
+
   /* ---- rings ---- */
   function setRing(id, value, target) {
     var el = $(id);
@@ -112,7 +118,13 @@
       if (card) card.classList.toggle('done', !!logged[m.id]);
     });
     store.set(todayKey(), logged);
-    history[dayId()] = { kcal: t.kcal, protein: t.protein, carbs: t.carbs, fat: t.fat, count: count, total: MEALS.length };
+    history[dayId()] = {
+      kcal: t.kcal, protein: t.protein, carbs: t.carbs, fat: t.fat,
+      count: count, total: MEALS.length,
+      feeds: MEALS.map(function (m) {
+        return { name: m.name, time: m.time, kcal: m.kcal, protein: m.protein, carbs: m.carbs, fat: m.fat, done: !!logged[m.id] };
+      })
+    };
     store.set('plate:history', history);
     renderWeek();
   }
@@ -150,13 +162,94 @@
       var done = dayComplete(rec);
       var part = !done && rec && rec.total > 0 && rec.count > 0;
       var cls = 'wd' + (done ? ' done' : '') + (part ? ' part' : '') + (key === today ? ' today' : '');
-      html += '<div class="' + cls + '"><span class="wd-dot"></span><span class="wd-lbl">' + dn[d.getDay()] + '</span></div>';
+      html += '<button type="button" class="' + cls + '" data-key="' + key + '"><span class="wd-dot"></span><span class="wd-lbl">' + dn[d.getDay()] + '</span></button>';
       d.setDate(d.getDate() + 1);
     }
     strip.innerHTML = html;
-    var streak = computeStreak();
-    txt('streakNum', streak);
-    txt('streakLbl', streak === 1 ? 'day streak' : 'day streak');
+    txt('streakNum', computeStreak());
+  }
+
+  function longestStreak() {
+    var set = {};
+    Object.keys(history).forEach(function (k) { if (dayComplete(history[k])) set[k] = 1; });
+    if (dayComplete(recFor(dayId()))) set[dayId()] = 1;
+    var best = 0;
+    Object.keys(set).forEach(function (k) {
+      var prev = dateFromKey(k); prev.setDate(prev.getDate() - 1);
+      if (set[isoOf(prev)]) return;   // not a run start
+      var run = 0, d = dateFromKey(k);
+      while (set[isoOf(d)]) { run++; d.setDate(d.getDate() + 1); }
+      if (run > best) best = run;
+    });
+    return best;
+  }
+
+  function weekStats() {
+    var sumKcal = 0, sumPro = 0, loggedDays = 0, onTarget = 0;
+    var d = new Date();
+    for (var i = 0; i < 7; i++) {
+      var rec = recFor(isoOf(d));
+      if (rec && (rec.count > 0 || rec.kcal > 0)) { loggedDays++; sumKcal += rec.kcal; sumPro += rec.protein; }
+      if (dayComplete(rec)) onTarget++;
+      d.setDate(d.getDate() - 1);
+    }
+    return {
+      avgKcal: loggedDays ? Math.round(sumKcal / loggedDays) : 0,
+      avgPro: loggedDays ? Math.round(sumPro / loggedDays) : 0,
+      onTarget: onTarget,
+      best: longestStreak()
+    };
+  }
+
+  /* ---- history sheet ---- */
+  function dayRow(key, rec, expanded) {
+    var done = dayComplete(rec);
+    var part = !done && rec.count > 0;
+    var badgeCls = done ? 'done' : (part ? 'part' : 'miss');
+    var feeds = '';
+    if (rec.feeds && rec.feeds.length) {
+      feeds = rec.feeds.map(function (f) {
+        return '<div class="hf' + (f.done ? ' on' : '') + '"><span class="hf-mark">' + (f.done ? '✓' : '·') + '</span>'
+          + '<span class="hf-name">' + esc(f.name) + '</span>'
+          + '<span class="hf-mac tnum">' + f.kcal + ' kcal · ' + f.protein + 'P</span></div>';
+      }).join('');
+    } else {
+      feeds = '<div class="hf-empty">No feed breakdown saved for this day.</div>';
+    }
+    return '<button type="button" class="hrow" data-key="' + key + '">'
+      + '<span class="hd-date">' + fmtDate(key) + (key === dayId() ? ' · Today' : '') + '</span>'
+      + '<span class="hd-stat tnum">' + rec.kcal + ' kcal · ' + rec.protein + 'P</span>'
+      + '<span class="hd-badge ' + badgeCls + ' tnum">' + rec.count + '/' + rec.total + '</span>'
+      + '</button>'
+      + '<div class="hd-feeds"' + (expanded ? '' : ' hidden') + '>' + feeds + '</div>';
+  }
+
+  function renderHistory(focusKey) {
+    var s = weekStats();
+    txt('stAvgKcal', s.avgKcal);
+    txt('stAvgPro', s.avgPro);
+    txt('stOnTarget', s.onTarget + '/7');
+    txt('stBest', s.best);
+
+    var rows = [], d = new Date();
+    for (var i = 0; i < 21; i++) {
+      var key = isoOf(d);
+      var rec = history[key];   // stored snapshot carries the per-feed breakdown
+      if (rec && (rec.count > 0 || rec.kcal > 0)) {
+        if (!rec.total) rec.total = MEALS.length;
+        rows.push(dayRow(key, rec, key === focusKey));
+      } else if (key === focusKey) {
+        rows.push(dayRow(key, { kcal: 0, protein: 0, carbs: 0, fat: 0, count: 0, total: MEALS.length, feeds: [] }, true));
+      }
+      d.setDate(d.getDate() - 1);
+    }
+    var list = $('historyList');
+    list.innerHTML = rows.length ? rows.join('') : '<p class="hist-empty">Log a feed to start your history.</p>';
+    openSheet($('historySheet'));
+    if (focusKey) {
+      var el = list.querySelector('.hrow[data-key="' + focusKey + '"]');
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
   }
 
   /* ---- meal toggling (delegated, survives re-render) ---- */
@@ -173,24 +266,42 @@
   /* ---- date ---- */
   (function () {
     var d = new Date();
-    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    var mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    txt('todayDate', days[d.getDay()] + ' · ' + d.getDate() + ' ' + mon[d.getMonth()]);
+    txt('todayDate', DOW[d.getDay()] + ' · ' + d.getDate() + ' ' + MON[d.getMonth()]);
   })();
 
-  /* ---- sheets (reminders + edit share one overlay) ---- */
-  var sheet = $('sheet'), editSheet = $('editSheet'), overlay = $('overlay');
+  /* ---- sheets (reminders + edit + history share one overlay) ---- */
+  var sheet = $('sheet'), editSheet = $('editSheet'), historySheet = $('historySheet'), overlay = $('overlay');
   function openSheet(el) { el.classList.add('open'); overlay.classList.add('show'); }
   function closeSheets() {
     sheet.classList.remove('open');
     editSheet.classList.remove('open');
+    historySheet.classList.remove('open');
     overlay.classList.remove('show');
   }
   $('bellBtn').addEventListener('click', function () { openSheet(sheet); });
   $('sheetClose').addEventListener('click', closeSheets);
   $('editBtn').addEventListener('click', function () { openEditor(); });
   $('editClose').addEventListener('click', closeSheets);
+  $('historyClose').addEventListener('click', closeSheets);
   overlay.addEventListener('click', closeSheets);
+
+  /* tap the streak card (or a specific day dot) to open history */
+  var streakCard = $('streakCard');
+  streakCard.addEventListener('click', function (e) {
+    var dot = e.target.closest && e.target.closest('.wd');
+    renderHistory(dot ? dot.getAttribute('data-key') : null);
+  });
+  streakCard.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); renderHistory(null); }
+  });
+
+  /* expand/collapse a day's feed breakdown */
+  $('historyList').addEventListener('click', function (e) {
+    var row = e.target.closest && e.target.closest('.hrow');
+    if (!row) return;
+    var feeds = row.nextElementSibling;
+    if (feeds && feeds.classList.contains('hd-feeds')) feeds.hidden = !feeds.hidden;
+  });
 
   /* ---- reminders: feed-time inputs ---- */
   var timeList = $('timeList');

@@ -163,19 +163,47 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
 
 /* streak + week strip */
 .streak{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--hair);border-radius:22px;
-  padding:16px 18px;box-shadow:var(--shadow-sm);margin:0 0 10px}
+  padding:16px 18px;box-shadow:var(--shadow-sm);margin:0 0 10px;width:100%;text-align:left;cursor:pointer;
+  font-family:var(--body);transition:border-color .2s,transform .08s}
+.streak:active{transform:scale(.994)}
+.streak:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .streak .flame{width:48px;height:48px;border-radius:14px;background:var(--amber-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px}
 .streak .sinfo{flex-shrink:0}
 .streak .snum{font-family:var(--disp);font-weight:800;font-size:30px;line-height:1;letter-spacing:-.02em}
 .streak .slbl{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.streak .chev{width:16px;height:16px;color:var(--faint);flex-shrink:0;margin-left:2px}
 .week{display:flex;gap:6px;margin-left:auto}
-.wd{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;padding:0;cursor:pointer;font-family:inherit}
 .wd .wd-dot{width:12px;height:12px;border-radius:50%;background:var(--track);border:2px solid var(--track);transition:.2s}
 .wd .wd-lbl{font-size:10px;font-weight:700;color:var(--faint)}
 .wd.part .wd-dot{background:var(--amber-soft);border-color:var(--amber)}
 .wd.done .wd-dot{background:var(--green);border-color:var(--green)}
 .wd.today .wd-lbl{color:var(--green-ink)}
 .wd.today .wd-dot{box-shadow:0 0 0 2px var(--green-soft)}
+
+/* history sheet */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.stat{background:var(--cream);border:1px solid var(--hair);border-radius:15px;padding:14px 16px}
+.stat-num{font-family:var(--disp);font-weight:800;font-size:24px;line-height:1;letter-spacing:-.02em}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.03em}
+.hrow{width:100%;display:flex;align-items:center;gap:10px;background:var(--cream);border:1px solid var(--hair);border-radius:13px;
+  padding:12px 14px;margin-bottom:8px;cursor:pointer;font-family:var(--body);text-align:left;transition:transform .08s}
+.hrow:active{transform:scale(.992)}
+.hrow .hd-date{font-family:var(--disp);font-weight:700;font-size:14px;flex:1;min-width:0}
+.hrow .hd-stat{font-size:12px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.hrow .hd-badge{flex-shrink:0;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
+.hrow .hd-badge.done{background:var(--green-soft);color:var(--green-ink)}
+.hrow .hd-badge.part{background:var(--amber-soft);color:#9a6800}
+.hrow .hd-badge.miss{background:var(--track);color:var(--faint)}
+.hd-feeds{margin:-2px 2px 12px;padding:4px 8px}
+.hf{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--hair);font-size:13px;color:var(--faint)}
+.hf:last-child{border-bottom:none}
+.hf.on{color:var(--ink)}
+.hf .hf-mark{width:16px;text-align:center;font-weight:700;color:var(--faint)}
+.hf.on .hf-mark{color:var(--green)}
+.hf .hf-name{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hf .hf-mac{font-size:12px;font-variant-numeric:tabular-nums}
+.hf-empty,.hist-empty{font-size:12.5px;color:var(--faint);font-weight:500;padding:6px 2px}
 
 /* edit sheet */
 .target-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
@@ -269,10 +297,11 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
   <div id="mealList"></div>
 
   <!-- STREAK / WEEK -->
-  <section class="streak">
+  <section class="streak" id="streakCard" role="button" tabindex="0" aria-label="View history">
     <div class="flame" aria-hidden="true">🔥</div>
     <div class="sinfo"><div class="snum tnum" id="streakNum">0</div><div class="slbl" id="streakLbl">day streak</div></div>
     <div class="week" id="weekStrip"></div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
   </section>
 
   <div class="note">
@@ -337,6 +366,26 @@ footer{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);font-
 
   <button class="savebtn" id="saveEdit">Save changes</button>
   <button class="resetbtn" id="resetPlan">Reset to default plan</button>
+</div>
+
+<!-- HISTORY SHEET -->
+<div class="sheet" id="historySheet">
+  <div class="handle"></div>
+  <div class="sheet-top">
+    <h3>History</h3>
+    <button class="sheet-close" id="historyClose">✕</button>
+  </div>
+  <p class="subt">Your last 7 days at a glance — tap any day to see what you logged.</p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num tnum" id="stAvgKcal">0</div><div class="stat-lbl">avg kcal/day</div></div>
+    <div class="stat"><div class="stat-num tnum" id="stAvgPro">0</div><div class="stat-lbl">avg protein</div></div>
+    <div class="stat"><div class="stat-num tnum" id="stOnTarget">0/7</div><div class="stat-lbl">days on target</div></div>
+    <div class="stat"><div class="stat-num tnum" id="stBest">0</div><div class="stat-lbl">best streak</div></div>
+  </div>
+
+  <div class="times-lbl">Recent days</div>
+  <div id="historyList"></div>
 </div>
 
 <script src="app.js" defer></script>

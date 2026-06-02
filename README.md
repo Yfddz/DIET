@@ -38,6 +38,10 @@ Feed times are editable in the bell sheet.
 ## Streak & history
 Plate keeps a rolling, on-device history of each day. The card under your feeds shows a **7-day strip** (a dot per day — filled green when every feed was logged, amber when partial) and your **current day streak**. A day counts toward the streak when all its feeds are logged; today stays "in progress" without breaking yesterday's streak.
 
+**Tap the streak card** (or any day dot) to open **History**:
+- Weekly stats — avg kcal/day, avg protein, days on target, and your best-ever streak.
+- A list of recent days; tap any one to expand what you logged, feed by feed.
+
 ## Customize — in the app
 Tap **Edit plan** (top-right of *Your day*) to change everything without touching code:
 
